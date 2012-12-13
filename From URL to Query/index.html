@@ -1,0 +1,463 @@
+<html>
+	<head>
+		<title>WordCamp Toronto 2012 - The Power of WordPress’ Roles and Capabilities: Understanding map_meta_cap</title>
+
+		<!-- syntax highlighter styles -->
+		<link rel="stylesheet" href="../impress-js-master/syntax-highlighter/styles/shCore.css" />
+		<!-- Pick a theme from /master/syntax-highlighter/styles/ -->
+		<link rel="stylesheet" href="../impress-js-master/syntax-highlighter/styles/shThemeEclipse.css" />
+
+		<link rel="stylesheet" href="../impress-js-master/style.css" />
+
+		<!-- syntax highlighter depends on XRegExp.js -->
+		<script type="text/javascript" src="../impress-js-master/XRegExp.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/src/shCore.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/scripts/shBrushBash.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/scripts/shBrushPhp.js"></script>
+	</head>
+	<body class="impress-not-supported">
+
+	<!--
+			For example this fallback message is only visible when there is `impress-not-supported` class on body.
+	-->
+	<div class="fallback-message">
+			<p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+			<p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+	</div>
+
+	<div class="hint">
+			<p>Use a spacebar or arrow keys to navigate</p>
+	</div>
+	<script>
+	if ("ontouchstart" in document.documentElement) {
+			document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+	}
+	</script>
+
+	<div id="impress">
+		<div id="intro" class="step slide" data-x="0" data-y="0">
+			<h1>The Power of WordPress’ Roles and Capabilities: Understanding map_meta_cap</h1>
+			<h2>WordCamp Toronto Developers 2012</h2>
+
+			<div class="intro-credits">
+				<p>Erick Hitter</p>
+				<p>Design Engineer @ Automattic</p>
+				<p><a href="http://www.twitter.com/ethitter" target="_blank">@ethitter</a></p>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="0">
+			<h1>About Me</h1>
+
+			<ul>
+				<li>Design Engineer at Automattic, the company behind WordPress.com</li>
+				<li>Formerly a Senior WordPress Developer with Oomph, Inc. working on the WordPress.com VIP platform</li>
+				<li>3+ years developing WordPress themes and plugins</li>
+				<li>WordPress Core Contributor</li>
+				<li>WordCamp Boston Organizer</li>
+				<li>Plugin Author</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="900">
+			<h1>Myth I Hope To (Continue) Dispelling</h1>
+
+			<p>&nbsp;</p>
+
+			<h2>WordPress, as a CMS, lacks adequate controls over user actions, making CMS <strong>____?____</strong> a better choice.</h2>
+
+			<p>&nbsp;</p>
+
+			<p>&nbsp;</p>
+
+			<h2>By show of hands, who has heard this refrain?</h2>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="1800">
+			<h1>Roles and Capabilities</h1>
+
+			<h2><a href="http://codex.wordpress.org/Roles_and_Capabilities" target="_blank">http://codex.wordpress.org/Roles_and_Capabilities</a></h2>
+
+			<p>&nbsp;</p>
+
+			<h2>This Codex article is your friend!</h2>
+
+			<ul>
+				<li>Overview of default roles</li>
+				<li>List of default capabilities</li>
+				<li>Table of default roles' standard capabilities</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="3000" data-y="1800">
+			<h1>Default Roles</h1>
+
+			<ul>
+				<li>Administrator</li>
+				<li>Editor</li>
+				<li>Author</li>
+				<li>Contributor</li>
+				<li>Subscriber</li>
+			</ul>
+		</div>
+
+
+
+		<div class="step slide" data-x="4500" data-y="1800">
+			<h1>Native Capabilities</h1>
+
+			<ul>
+				<li><code>read</code></li>
+				<li><code>edit_posts</code></li>
+				<li><code>edit_others_posts</code></li>
+				<li><code>publish_posts</code></li>
+				<li><code>switch_themes</code></li>
+				<li><code>edit_themes</code></li>
+				<li><code>manage_options</code></li>
+			</ul>
+
+			<p>&nbsp;</p>
+
+			<h2>This list is far from complete; see <a href="http://codex.wordpress.org/Roles_and_Capabilities#Capabilities" target="_blank">http://codex.wordpress.org/Roles_and_Capabilities#Capabilities</a></h2>
+		</div>
+
+		<div class="step slide" data-x="6000" data-y="1800">
+			<h1>Key Functions</h1>
+
+			<ul>
+				<li><code>get_role()</code></li>
+				<li><code>add_role()</code></li>
+				<li><strong><code>current_user_can()</code></strong></li>
+				<li><strong><code>user_can()</code></strong></li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="7500" data-y="1800">
+			<h1>Checking capabilities</h1>
+
+			<ul>
+				<li><code>current_user_can( $capability )</code></li>
+				<li><code>user_can( $user, $capapbility )</code></li>
+			</ul>
+
+			<p>Both return a boolean indicating whether or not the user has the specified capability.</p>
+		</div>
+
+		<div class="step slide" data-x="9000" data-y="1800">
+			<h1>Checking user roles</h1>
+
+			<h2>Don't</h2>
+
+			<p><code>current_user_can()</code> and <code>user_can()</code> will accept a role in place of the capability, but it's unsafe to do so.</p>
+
+			<p>A user could have the role specified, but a critical capability could be removed.</p>
+
+			<p>Also, this breaks much of what I'll cover today.</p>
+		</div>
+
+		<div class="step slide" data-x="10500" data-y="1800">
+			<h1>How does WordPress leverages capabilities?</h1>
+
+			<p>In Core, when creating a new post or page:</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true;">&lt;?php
+// wp-admin/post-new.php, line 39-40
+
+if ( ! current_user_can( $post_type_object->cap->edit_posts ) )
+	wp_die( __( 'Cheatin&#8217; uh?' ) );
+?&gt;</pre>
+			</div>
+
+			<p>&nbsp;</p>
+
+			<p>In Core, deterining if the current user can manage widgets:</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true;">&lt;?php
+// wp-admin/widgets.php, line 15-16
+
+if ( ! current_user_can('edit_theme_options') )
+	wp_die( __( 'Cheatin&#8217; uh?' ) );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="10500" data-y="2700">
+			<h1>Need more granular control?</h1>
+
+			<p>&nbsp;</p>
+
+			<h1 style="color: #4d4d4d;"><code>map_meta_cap</code> is your friend</h1>
+		</div>
+
+		<div class="step slide" data-x="12000" data-y="2700">
+			<h1>But why?</h1>
+
+			<p>With <code>map_meta_cap</code>, you can:</p>
+
+			<ul>
+				<li>Prevent a specific post from being modified (edited, status changed, deleted, etc).</li>
+				<li>Block a specific user from performing some action his/her role would otherwise allow.</li>
+				<li>Grant a user a capability in a particular situation.</li>
+			</ul>
+
+			<p>&nbsp;</p>
+
+			<p>In short, this provides a level of control beyond just the roles themselves.</p>
+		</div>
+
+		<div class="step slide" data-x="13500" data-y="2700">
+			<h1>But how?</h1>
+
+			<p>There are really two types of capabilities in WordPress:</p>
+
+			<ul>
+				<li><strong>primitive</strong> - broad indication that a given role <em>might</em> or <em>might not</em> be able to do something</li>
+				<li><strong>meta</strong> - contextual determination that a given user <em>can</em> or <em>cannot</em> do something</li>
+			</ul>
+
+			<p>&nbsp;</p>
+
+			<p><code>map_meta_cap</code> translates a user's primitive capabilities to his/her meta capabilities.</p>
+		</div>
+
+		<div class="step slide" data-x="15000" data-y="2700">
+			<h1>How are the two different?</h1>
+
+			<ul>
+				<li>Primitive capabilities are assigned to user roles.</li>
+				<li>Meta capabilities <em>never should be</em> assigned to a role.</li>
+				<li>
+					Primitive capabilities are generally plural, meta capabilities are singular.
+					<ul>
+						<li><code>edit_posts</code></li>
+						<li><code>edit_post</code></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="16500" data-y="2700">
+			<h1>Contextual determination? Say what?</h1>
+
+			<p><strong>Intent</strong>: to publish a post you wrote</p>
+
+			<p><strong>Need</strong>: <code>publish_posts</code>, <code>edit_posts</code></p>
+		</div>
+
+		<div class="step slide" data-x="18000" data-y="2700">
+			<h1>Contextual determination? Say what?</h1>
+
+			<p><strong>Intent</strong>: to publish a post someone else wrote</p>
+
+			<p><strong>Need</strong>: <code>publish_posts</code>, <code>edit_posts</code>, <code>edit_others_posts</code></p>
+		</div>
+
+		<div class="step slide" data-x="19500" data-y="2700">
+			<h1>Contextual determination? Say what?</h1>
+
+			<p><strong>Intent</strong>: to moderate a comment</p>
+
+			<p><strong>Need</strong>: <code>moderate_comments</code>, <code>edit_posts</code></p>
+		</div>
+
+		<div class="step slide" data-x="21000" data-y="2700">
+			<h1 class="middle">In other words, <code>map_meta_cap</code> introduces dependencies within WordPress' capabilities system.</h1>
+		</div>
+
+		<div class="step slide" data-x="22500" data-y="2700">
+			<h1 class="middle">Questions before we move into code?</h1>
+		</div>
+
+		<div class="step slide" data-x="22500" data-y="3600">
+			<h1><code>map_meta_cap</code></h1>
+
+			<h2><code>map_meta_cap()</code> is in <code>wp-includes/capabilities.php</code>.</h2>
+
+			<p>&nbsp;</p>
+
+			<p>Within that function is the <code>map_meta_cap</code> filter.</p>
+
+			<p>&nbsp;</p>
+
+			<p>WordPress handles the function, we really care about the filter.</p>
+		</div>
+
+		<div class="step slide" data-x="24000" data-y="3600">
+			<h1><code>map_meta_cap</code></h1>
+
+			<code>apply_filters('map_meta_cap', $caps, $cap, $user_id, $args)</code>
+
+			<ul>
+				<li><code>'map_meta_cap'</code>: filter name</li>
+				<li><code>$caps</code>: all of the meta capabilities already determined by WordPress</li>
+				<li><code>$cap</code>: the primitive capability that triggered this filter call</li>
+				<li><code>$user_id</code>: user ID either for the current user or a specific user when using <code>user_can()</code></li>
+				<li><code>$args</code>: optional additional information relevant to current capability check</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="25500" data-y="3600">
+			<h1><code>$args</code></h1>
+
+			<p><strong>This is important!</strong></p>
+
+			<p>&nbsp;</p>
+
+			<p>The <code>$args</code> parameter is both incredibly useful, and annoyingly vague.</p>
+
+			<p>&nbsp;</p>
+
+			<p><code>$args</code> is a numerically-indexed array whose values contain data relevant to the current capabilities check.</p>
+
+			<p>&nbsp;</p>
+
+			<p>Unfortunately, isn't always populated, forcing one to use globals in some cases.</p>
+
+			<p>&nbsp;</p>
+
+			<p>Clear as mud, right?</p>
+		</div>
+
+		<div class="step slide" data-x="27000" data-y="3600">
+			<h1>Block deletion</h1>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: [18];">&lt;?php
+/**
+ * Prevent a post from being deleted if a meta key is present
+ *
+ * @param array $caps
+ * @param string $cap
+ * @param int $user_id
+ * @param array $args
+ * @uses get_post_meta
+ * @filter map_meta_cap
+ * @return array
+ */
+function wcto_block_post_deletion( $caps, $cap, $user_id, $args ) {
+	if (
+		'delete_post' == $cap
+		&& get_post_meta( (int) $args[0], '_block_deletion', true )
+	)
+		$caps[] = 'do_not_allow';
+
+	return $caps;
+}
+add_filter( 'map_meta_cap', 'wcto_block_post_deletion', 10, 4 );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="28500" data-y="3600">
+			<h1>Block file uploads</h1>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: [18];">&lt;?php
+/**
+ * Prevent specific users from uploading files
+ *
+ * @param array $caps
+ * @param string $cap
+ * @param int $user_id
+ * @param array $args
+ * @uses get_user_meta
+ * @filter map_meta_cap
+ * @return array
+ */
+function wcto_limit_uploads( $caps, $cap, $user_id, $args ) {
+	if (
+		'upload_files' == $cap
+		&& (bool) get_user_meta( $user_id, 'disallow_uploads', true )
+	)
+		$caps[] = 'do_not_allow';
+
+	return $caps;
+}
+add_filter( 'map_meta_cap', 'wcto_limit_uploads', 10, 4 );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="30000" data-y="3600">
+			<h1>Magic of <code>do_not_allow</code></h1>
+
+			<p>When preventing something, you don't need to remove the capabilities that let a user perform an action.</p>
+
+			<p><code style="text-decoration: line-through;">unset( $caps['edit_posts'] );</code></p>
+
+			<p>&nbsp;</p>
+
+			<p>Instead, add <code>do_not_allow</code> to the <code>$caps</code> array and WP ignores the other meta capabilities it determined.</p>
+		</div>
+
+		<div class="step slide" data-x="31500" data-y="3600">
+			<h1>Allow editing</h1>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: [20];">&lt;?php
+/**
+ * Allow a contributor to edit a particular published post
+ *
+ * @param array $caps
+ * @param string $cap
+ * @param int $user_id
+ * @param array $args
+ * @uses get_post_meta
+ * @filter map_meta_cap
+ * @return array
+ */
+function wcto_allow_contrib_edit_post( $caps, $cap, $user_id, $args ) {
+	if (
+		'edit_post' == $cap
+		&& isset( $args[0] )
+		&& (bool) get_post_meta( (int) $args[0], '_allow_contribs_to_edit', true )
+		&& get_post_field( 'post_author', (int) $args[0] ) == $user_id
+	)
+		$caps = array( 'edit_posts' );
+
+	return $caps;
+}
+add_filter( 'map_meta_cap', 'wcto_allow_contrib_edit_post', 10, 4 );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="33000" data-y="3600">
+			<h1>Note about overriding</h1>
+
+			<p>When overriding to grant a capability, you often must clear the <code>$caps</code> array of the capabilities you're overridding.</p>
+
+			<p>In other words, there is no <code>allow</code> cap that has the opposite effect as <code>do_not_allow</code>.</p>
+		</div>
+
+		<div class="step slide" data-x="33000" data-y="4500">
+			<h1>Questions?</h1>
+
+			<h2>Slides are available at <a href="http://www.ethitter.com/blog/" target="_blank">http://www.ethitter.com/blog/</a>.</h2>
+
+			<h2>Check Twitter for a link as well: <a href="http://www.twitter.com/ethitter" target="_blank">@ethitter</a>.</h2>
+		<!-- end -->
+	</div>
+	<!--
+
+			Last, but not least.
+
+			To make all described above really work, you need to include impress.js in the page.
+			I strongly encourage to minify it first.
+
+			In here I just include full source of the script to make it more readable.
+
+			You also need to call a `impress().init()` function to initialize impress.js presentation.
+			And you should do it in the end of your document. Not only because it's a good practice, but also
+			because it should be done when the whole document is ready.
+			Of course you can wrap it in any kind of "DOM ready" event, but I was too lazy to do so ;)
+
+	-->
+	<script src="../impress-js-master/impress.js"></script>
+	<script>SyntaxHighlighter.all(); impress().init();</script>
+
+	</body>
+</html>
+

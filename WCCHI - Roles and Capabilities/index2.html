@@ -1,0 +1,114 @@
+<html>
+	<head>
+		<title>WordCamp Chicago 2012 - The Power of WordPress' Roles and Capabilities</title>
+
+		<!-- syntax highlighter styles -->
+		<link rel="stylesheet" href="../impress-js-master/syntax-highlighter/styles/shCore.css" />
+		<!-- Pick a theme from /master/syntax-highlighter/styles/ -->
+		<link rel="stylesheet" href="../impress-js-master/syntax-highlighter/styles/shThemeEclipse.css" />
+
+		<link rel="stylesheet" href="../impress-js-master/style.css" />
+
+		<!-- syntax highlighter depends on XRegExp.js -->
+		<script type="text/javascript" src="../impress-js-master/XRegExp.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/src/shCore.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/scripts/shBrushBash.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/scripts/shBrushPhp.js"></script>
+	</head>
+	<body class="impress-not-supported">
+
+	<!--
+			For example this fallback message is only visible when there is `impress-not-supported` class on body.
+	-->
+	<div class="fallback-message">
+			<p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+			<p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+	</div>
+
+	<div class="hint">
+			<p>Use a spacebar or arrow keys to navigate</p>
+	</div>
+	<script>
+	if ("ontouchstart" in document.documentElement) {
+			document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+	}
+	</script>
+
+	<div id="impress">
+		<div id="intro" class="step slide" data-x="0" data-y="0">
+			<h1>The Power of WordPress' Roles and Capabilities</h1>
+			<h2>WordCamp Chicago 2012</h2>
+
+			<div class="intro-credits">
+				<p>Erick Hitter</p>
+				<p>Design Engineer @ Automattic</p>
+				<p><a href="http://www.twitter.com/ethitter">@ethitter</a></p>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="0">
+			<h1>About Me</h1>
+
+			<ul>
+				<li>Design Engineer at Automattic, the company behind WordPress.com</li>
+				<li>Formerly a Senior WordPress Developer with Oomph, Inc. working on the WordPress.com VIP platform</li>
+				<li>3+ years developing WordPress themes and plugins</li>
+				<li>WordPress 3.3 Core Contributor</li>
+				<li>WordCamp Boston Organizer</li>
+				<li>Plugin Author</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="900">
+			<h1>Myths I Hope To Dispell</h1>
+
+			<p>&nbsp;</p>
+
+			<h2>WordPress, as a CMS, lacks adequate controls over user actions, making CMS <strong>____?____</strong> a better choice.</h2>
+
+			<p>&nbsp;</p>
+
+			<p>&nbsp;</p>
+
+			<h2>By show of hands, who has heard this refrain?</h2>
+		</div>
+
+		<div class="step slide" data-x="3000" data-y="900">
+			<h1>Roles and Capabilities</h1>
+
+			<h2><a href="http://codex.wordpress.org/Roles_and_Capabilities">http://codex.wordpress.org/Roles_and_Capabilities</a></h2>
+
+			<p>&nbsp;</p>
+
+			<p>This Codex article is your friend!</p>
+
+			<ul>
+				<li>Overview of default roles</li>
+				<li>Table of default roles' base capabilities</li>
+			</ul>
+		</div>
+
+
+		<!-- end -->
+	</div>
+	<!--
+
+			Last, but not least.
+
+			To make all described above really work, you need to include impress.js in the page.
+			I strongly encourage to minify it first.
+
+			In here I just include full source of the script to make it more readable.
+
+			You also need to call a `impress().init()` function to initialize impress.js presentation.
+			And you should do it in the end of your document. Not only because it's a good practice, but also
+			because it should be done when the whole document is ready.
+			Of course you can wrap it in any kind of "DOM ready" event, but I was too lazy to do so ;)
+
+	-->
+	<script src="../impress-js-master/impress.js"></script>
+	<script>SyntaxHighlighter.all(); impress().init();</script>
+
+	</body>
+</html>
+

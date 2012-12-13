@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Caching and Scaling WordPress Using Fragment Caching</title>
+	<meta name="viewport" content="width=800">
+	
+	<!-- Replace path with correct path to deck.core.css. -->
+	<link rel="stylesheet" href="deck.core.css" type="text/css">
+	
+	<!-- Core and extension CSS files -->
+	<link rel="stylesheet" href="deck.navigation.css">
+	<link rel="stylesheet" href="deck.status.css">
+	<link rel="stylesheet" href="deck.hash.css">
+	<link rel="stylesheet" href="deck.menu.css">
+	<link rel="stylesheet" href="prettify.css">
+	<link rel="stylesheet" href="deck.coder.css">
+	
+
+	<!-- Theme -->
+	<link rel="stylesheet" id='style-theme-link' href="coderdeck.css" type="text/css" >
+
+	<link rel="stylesheet" href="codemirror.css">
+	<link rel="stylesheet" href="default.css">
+	<!-- Replace path with correct path to Modernizr file. -->
+
+	<script src='jquery.min.js'></script>
+	<script src="modernizr.js"></script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-28734688-1']);
+        _gaq.push(['_trackPageview']);
+        
+        _gaq.push( [ '_setCustomVar', 1,  'Presentation',  'WP_Query', 3 ] );
+
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</head>
+<body class="deck-container">
+<script type='text/coderdeck' id='coderdeck-style-example'>
+	<html>
+		<title>test</title>
+		<style>
+			CODE
+		</style>
+		<body>
+        <audio src="callpost.wav" autoplay="autoplay"></audio>
+		</body>
+	</html>
+</script> 	
+
+<?php
+	/*
+	 * Add slide about regenerating cache using build function and $force_refresh
+	 */
+?>
+
+<article class='slide slide-subhead slide-section'>
+	<h1 class='override' style="color: #CB4B16; text-align: center; ">Caching and Scaling With Fragment Caching</h1>
+	<h2><a href='http://www.ethitter.com/'>Erick Hitter</a> (<a href='http://twitter.com/ethitter'>@ethitter</a>)</h2>
+	<br /><br />
+	<h3 style="text-align: center; color: #fff;">
+		Lead WordPress Developer at <a href="http://www.oomphinc.com/">Oomph, Inc.</a><br />
+		WordPress 3.3 Core Contributor<br />
+		WordCamp Boston Organizer<br />
+		Plugin Author
+	</h3>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>What is Caching?</h1>
+	<ul>
+		<li>Serving static content to a visitor rather than something generated upon request.</li>
+		<li>Two major types in WordPress context (there are more):
+			<ul>
+				<li>Page - whole page is static and, therefore, could be outdated.</li>
+				<li>Fragment - cache pieces of a page rather than the entire page.</li>
+			</ul>
+		</li>
+	</ul>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>Fragment Caching Benefits</h1>
+	<h3>Allow dynamic and static content to coexist</h3>
+	<img src="images/vb_dropdown.png" width="1000" height="307" />
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>Fragment Caching Benefits</h1>
+	<h3>Common elements can be reused throughout a site</h3>
+	<div style="float: left;">
+		<img src="images/vb_permatext_mobile.png" />
+		<br />
+		<img src="images/vb_permatext_green.png" />
+	</div>
+	
+	<img src="images/vb_writers_mobile.png" style="float: left;" />
+	
+	<img src="images/vb_writers_green.png" style="float: left;" />
+	
+	<div style="clear: both;"></div>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>Fragment Caching Benefits</h1>
+	<h3>Reduce calls to APIs</h3>
+	
+	<iframe src="http://www.investorplace.com/real-america-index/#rai-map" width="1000" height="500"></iframe>
+	
+	<img src="images/ipm_rai.png" style="display:none;" />
+</article>
+
+<article class="slide slide-subhead">
+	<h1>WordPress' Native Caching APIs</h1>
+	
+	<div style="float: left; width: 48%;">
+		<h3>Transients</h3>
+		<ul>
+			<li>Persistent out of the box</li>
+			<li>Stored in wp_options: _transient_<em>{key}</em></li>
+			<li>WordPress uses for certain internal functions</li>
+			<li><em>set_, get_, and delete_transient()</em></li>
+		</ul>
+	</div>
+	
+	<div style="float: right; width: 48%;">
+		<h3>Object Cache</h3>
+		<ul>
+			<li>Not persistent without a plugin, such as <a href="http://wordpress.org/extend/plugins/w3-total-cache/">W3 Total Cache</a> or <a href="http://wordpress.org/extend/plugins/memcached">Memcached Object Cache</a></li>
+			<li>Storage depends on server's and plugin's capabilities</li>
+			<li>Used extensively within WordPress</li>
+			<li>Cache objects can be grouped</li>
+			<li><em>wp_cache_add(), _set, _get, _delete</em></li>
+		</ul>
+	</div>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">Fragment Caching Basics: Creating</h1>
+<pre class="prettyprint">&lt;?php
+	function generate_cached_output() {
+		if ( false === ( $output = wp_cache_get( $cache_key, $cache_group ) ) ) {
+			$output = 'Something to be cached';
+			
+			wp_cache_set( $cache_key, $output, $cache_group, 86400 );
+		}
+	
+		return $output;
+	}
+?&gt;</pre>
+
+	<ul>
+		<li>wp_cache_get() returns a boolean false if the requested cache isn't set or has expired.</li>
+		<li>Everything that is to be cached must be accessible via a function that returns its results rather than echoing them, otherwise output buffering is needed.</li>
+		<li>wp_cache_add() will not overwrite an existing, unexpired cache, whereas wp_cache_set() does.</li>
+	</ul>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">Fragment Caching Basics: Clearing</h1>
+<pre class="prettyprint">&lt;?php
+	function clear_cached_output( $new_status, $old_status ) {
+		if ( 'publish' == $new_status || 'publish' == $old_status )
+			wp_cache_delete( $cache_key, $cache_group );
+	}
+	add_action( 'transition_post_status', 'clear_cached_output', 10, 2 );
+?&gt;</pre>
+
+	<p>This above example clears a cache when anything is published or something that is published is modified. The "something" could be a post, page, or custom post type object.</p>
+	<p>If, instead, the cache should be rebuilt only when posts are edited, one additional argument from <em>transition_post_status</em> can be employed.</p>
+	
+<pre class="prettyprint">&lt;?php	
+	function clear_cached_output( $new_status, $old_status, $post ) {
+		if ( ( 'publish' == $new_status || 'publish' == $old_status ) && 'post' == $post->post_type )
+			wp_cache_delete( $cache_key, $cache_group );
+	}
+	add_action( 'transition_post_status', 'clear_cached_output', 10, 3 );
+?&gt;</pre>
+</article>
+
+<article class="slide slide-subhead">
+	<h1 class="override small">Fragment Caching Basics: Clearing</h1>
+	<h3>Same cache generation function from two slides ago, with a minor change</h3>
+<pre class="prettyprint">&lt;?php
+	function generate_cached_output( $force_refresh = false ) {
+		if ( $force_refresh || false === ( $output = wp_cache_get( $cache_key, $cache_group ) ) ) {
+			$output = 'Something to be cached';
+			
+			wp_cache_set( $cache_key, $output, $cache_group, 86400 );
+		}
+	
+		return $output;
+	}
+?&gt;</pre>
+	
+	<h3>Clear by rebuilding cache</h3>
+<pre class="prettyprint">&lt;?php
+	function clear_cached_output( $new_status, $old_status ) {
+		if ( 'publish' == $new_status || 'publish' == $old_status )
+			generate_cached_output( true );
+	}
+	add_action( 'transition_post_status', 'clear_cached_output', 10, 2 );
+?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>Unpredictable Keys</h1>
+	
+	<ul>
+		<li>Object caching doesn’t provide a way to clear all caches in a given group.</li>
+		<li>Therefore, if the cache key is unpredictable, how can we clear it?</li>
+		<li>For example, a list of recent posts to be displayed on an individual post, but that excludes the current post.</li>
+	</ul>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">Unpredictable Keys: Recent Posts</h1>
+	
+<pre class="prettyprint">&lt;?php
+	function recent_posts( $post_id = false, $qty = 3 ) {
+		$post_id = (int) $post_id;
+		if ( ! $post_id )
+			return false;
+		
+		$qty = (int) $qty ? (int) $qty : 3;
+		
+		$cache_key = $post_id . '_' . $qty;
+		
+		if ( false === ( $output = wp_cache_get( $cache_key, 'recent_posts' ) ) ) {
+			$output = 'Something to be cached';
+			
+			wp_cache_set( $cache_key, $output, 'recent_posts', 86400 );
+		}
+	
+		return $output;
+	}
+?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">Unpredictable Keys: Cached Array</h1>
+	
+<pre class="prettyprint">&lt;?php
+	function recent_posts( $post_id = false, $qty = 3 ) {
+		/* Sanitize function arguments */
+		
+		$cache_key = $post_id . '_' . $qty;
+		
+		$cache = wp_cache_get( 'single', 'recent_posts' );
+		if( ! is_array( $cache ) )
+			$cache = array();
+		
+		if ( ! array_key_exists( $cache_key, $cache ) ) {
+			$output = 'Something to be cached';
+			
+			$cache[ $cache_key ] = $output;
+			wp_cache_set( 'single', $cache, 'recent_posts', 86400 );
+		}
+	
+		return $output;
+	}
+?&gt;</pre>
+</article>
+
+<article class="slide slide-subhead">
+	<h1 class="override small">Unpredictable Keys: Cached Array</h1>
+	
+	<div style="float: left; width: 48%;">
+		<h3>Pros</h3>
+		<ul>
+			<li>Cache can easily be cleared because a single object with a predictable key is set.</li>
+			<li>Cache is only rebuilt if specific post ID/quantity key is absent from array.</li>
+			<li>Better for cache elements that are reliably small.</li>
+			<li>Allows for checking existence of various keys, such as in a loop.</li>
+		</ul>
+	</div>
+	
+	<div style="float: right; width: 48%;">
+		<h3>Cons</h3>
+		<ul>
+			<li>Object caching configuration may limit size of individual cache objects.</li>
+			<li>Array corruption could invalidate an entire cache object.</li>
+			<li>Array can become bloated if different quantities are used simultaneously.</li>
+		</ul>
+	</div>
+</article>
+
+<article class="slide slide-subhead">
+	<h1 class="override small">Unpredictable Keys: Incrementor</h1>
+<pre class="prettyprint">&lt;?php
+	function get_cache_incrementor() {
+		$incrementor = wp_cache_get( 'incrementor', 'recent_posts' );
+		if ( ! is_numeric( $incrementor ) ) {
+			$incrementor = time();
+			wp_cache_set( 'incrementor', $incrementor, 'recent_posts', 86400 );
+		}
+		
+		return $incrementor;
+	}
+	
+	function recent_posts( $post_id = false, $qty = 3 ) {
+		/* Sanitize function arguments */
+		
+		$cache_key = get_cache_incrementor() . '_' . $post_id . '_' . $qty;
+		
+		if ( false === ( $output = wp_cache_get( $cache_key, 'recent_posts' ) ) ) {
+			$output = 'Something to be cached';
+			
+			wp_cache_set( $cache_key, $output, 'recent_posts', 86400 );
+		}
+	
+		return $output;
+	}
+?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>Where We Use Fragment Caching</h1>
+	
+	<ul>
+		<li>Custom loops</li>
+		<li>Anytime a lot of data must be retrieved from WordPress and parsed.</li>
+		<li>Most situations where WP_Query generates a subquery outside of the main query.</li>
+		<li>Almost anything that is reused across multiple pages.</li>
+	</ul>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>category__not_in vs post__not_in</h1>
+<pre class="prettyprint">&lt;?php
+	new WP_Query( array(
+		'category__not_in' => 167
+	) );
+?&gt;</pre>
+
+<pre class="prettyprint">
+SELECT &hellip; WHERE 1=1  AND wp_posts.ID NOT IN ( SELECT tr.object_id FROM wp_term_relationships AS tr INNER JOIN wp_term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy = 'category' AND tt.term_id IN ('167') ) &hellip;
+</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">category__not_in vs post__not_in</h1>
+<pre class="prettyprint">&lt;?php
+	function cached_get_objects_in_term( $term_ids, $taxonomies, $args ) {
+		/* Sanitize function arguments */
+		
+		$cache_key = md5( implode( ',', $term_ids ) . $taxonomies . serialize( $args ) );
+		
+		if ( false === ( $ids = wp_cache_get( $cache_key, 'get_objects_in_term' ) ) ) {
+			$ids = get_objects_in_term( $term_ids, $taxonomies, $args );
+			/* Error check $ids */
+			wp_cache_set( $cache_key, $ids, 'get_objects_in_term', 86400 );
+		}
+		
+		return $ids;
+	}
+?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">category__not_in vs post__not_in</h1>
+<pre class="prettyprint">&lt;?php
+	new WP_Query( array(
+		'post__not_in' => cached_get_objects_in_term( 167, 'category' )
+	) );
+?&gt;</pre>
+
+<h3>Before</h3>
+<pre class="prettyprint">
+SELECT &hellip; WHERE 1=1  AND wp_posts.ID NOT IN ( SELECT tr.object_id FROM wp_term_relationships AS tr INNER JOIN wp_term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy = 'category' AND tt.term_id IN ('167') ) &hellip;
+</pre>
+
+<h3>After</h3>
+<pre class="prettyprint">
+SELECT &hellip; WHERE 1=1  AND wp_posts.ID NOT IN ( '1','2','3','4','5' ) &hellip;
+</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>Menu Caching: No Active States</h1>
+<pre class="prettyprint">&lt;?php
+	function cache_wp_nav_menu( $args = false, $skip_cache = false ) {
+		/* Sanitize function arguments */
+		
+		$echo = (bool) $args[ 'echo' ];
+		$args[ 'echo' ] = false;
+		
+		$cache_key = md5( implode( '|', $args ) );
+		
+		if( $skip_cache || false === ( $menu = wp_cache_get( $cache_key, $this->cache_group ) ) ) {
+			$menu = wp_nav_menu( $args );
+			
+			wp_cache_set( $cache_key, $menu, $this->cache_group, 86400 );
+		}
+		
+		if( $echo )
+			echo $menu;
+		else
+			return $menu;
+	}
+?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">Menu Caching: Active States</h1>
+<pre class="prettyprint">&lt;?php
+	function cache_wp_nav_menu( $args = false, $skip_cache = false ) {
+		/* Sanitize function arguments */
+		
+		$echo = (bool) $args[ 'echo' ];
+		$args[ 'echo' ] = false;
+		
+		$queried_object = (int) get_queried_object_id();
+		if ( ! $queried_object )
+			$queried_object = 0;
+		
+		$cache_key = get_cache_incrementor();
+		$cache_key .= $queried_object . '|';
+		$cache_key .= implode( '|', $args );
+		$cache_key = md5( $cache_key );
+		
+		...
+?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">Menu Caching: Keys & Clearing</h1>
+	
+	<ul>
+		<li><em>get_queried_object_id()</em> returns an integer representing the post ID or term ID.</li>
+		<li>Front page and custom post type archives return <em>0</em>.</li>
+		<li>Menu caches must be cleared when four different actions fire to ensure consistency:
+			<ul>
+				<li>wp_update_nav_menu</li>
+				<li>wp_update_nav_menu_item</li>
+				<li>wp_delete_nav_menu</li>
+				<li>wp_setup_nav_menu_item</li>
+			</ul>
+		</li>
+	</ul>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1><code>query_posts()</code> vs pre_get_posts</h1>
+	
+	<div style="float: left; width: 48%;">
+		<h3><code>query_posts()</code></h3>
+		<ul>
+			<li>Function provided to modify main query.</li>
+			<li>Runs after main query has already executed.</li>
+		</ul>
+<pre class="prettyprint">&lt;?php
+	//In home.php
+	query_posts( array(
+		'posts_per_page' => 5
+	) );
+?&gt;</pre>
+	</div>
+	
+	<div style="float: right; width: 48%;">
+		<h3>pre_get_posts</h3>
+		<ul>
+			<li>Action used to modify any query.</li>
+			<li>Runs before every query executes.</li>
+		</ul>
+<pre class="prettyprint">&lt;?php
+	function action_pre_get_posts( $query ) {
+		if ( $query->is_home() )
+			$query->set( 'posts_per_page', 5 );
+	}
+	add_action( 'pre_get_posts', 'action_pre_get_posts' );
+?&gt;</pre>
+	</div>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>How Does This Factor Into Our Work On WordPress.com VIP?</h1>
+	
+	<ul>
+		<li>Page caches only last for five minutes.</li>
+		<li>No page caching for logged-in users.</li>
+		<li>Sites that publish with great frequency trigger regular invalidations of homepage and category pages.</li>
+		<li>Web servers outnumber database servers.</li>
+	</ul>
+	
+	<p>Want to know more about WordPress.com infrastructure? Check out <a href="http://goo.gl/lYpJH">http://goo.gl/lYpJH</a>.</p>
+</article>
+
+<article class='slide slide-subhead slide-section '>
+	<h1 class='big override'>Questions?</h1>
+	
+	<p id="email" style="color: #fff;">Email: </p>
+
+	<p style="color: #fff;">On Twitter: <a href="http://twitter.com/ethitter">@ethitter</a></p>
+
+	<p style="color: #fff;">Slides will be available at <a href="http://www.ethitter.com/">http://www.ethitter.com/</a>.</p>
+</article>
+
+<!-- Update these paths to point to the correct files. -->
+<script src="jquery.tmpl.min.js"></script>
+<script src="deck.core.js"></script>
+
+<!-- Code Mirror -->
+<script src="codemirror.js"></script>
+<script src="css.js"></script>
+<script src="javascript.js"></script>
+<script src="htmlmixed.js"></script>
+
+<!-- Prettify -->
+<script src="prettify.js"></script>
+
+<!-- Deck Core and extensions -->
+<script src="deck.status.js"></script>
+<script src="deck.navigation.js"></script>
+<script src='deck.coder.js'></script>
+<script src="deck.hash.js"></script>
+<script src="deck.menu.js"></script>
+
+<script>
+	$(function() {
+		$.deck('.slide');   
+        $(".slide-subhead h1").each( function(index, element){
+            /* Alignment.  3 rules */  
+            if ( (index +1) % 3 == 1%3)
+                $(element).addClass('right');
+            else if ( (index +1) % 3 == 2%3)
+                $(element).addClass('center');
+            else
+                $(element).addClass('left');
+            /* Color.  2 rules */
+            if ( (index +1) % 2 == 1%2)
+                $(element).addClass('violet');
+            else
+                $(element).addClass('red');
+              
+            /* vertical space */ 
+            /*if ( $(element).hasClass('override') === false )
+                $(element).css('padding-top',  0.75 + (2-0.75)*Math.random() + 'em' );*/
+        });
+        
+        $( '#email' ).append( 'erick' );
+        $( '#email' ).append( '@' );
+        $( '#email' ).append( 'thinkoomph.com' );
+	});
+</script>
+</body>
+</html>

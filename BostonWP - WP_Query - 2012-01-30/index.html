@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>WP_Query, pre_get_posts, and eliminating query_posts()</title>
+	<meta name="viewport" content="width=800">
+	
+	<!-- Replace path with correct path to deck.core.css. -->
+	<link rel="stylesheet" href="deck.core.css" type="text/css">
+	
+	<!-- Core and extension CSS files -->
+	<link rel="stylesheet" href="deck.navigation.css">
+	<link rel="stylesheet" href="deck.status.css">
+	<link rel="stylesheet" href="deck.hash.css">
+	<link rel="stylesheet" href="deck.menu.css">
+	<link rel="stylesheet" href="prettify.css">
+	<link rel="stylesheet" href="deck.coder.css">
+	
+
+	<!-- Theme -->
+	<link rel="stylesheet" id='style-theme-link' href="coderdeck.css" type="text/css" >
+
+	<link rel="stylesheet" href="codemirror.css">
+	<link rel="stylesheet" href="default.css">
+	<!-- Replace path with correct path to Modernizr file. -->
+
+	<script src='jquery.min.js'></script>
+	<script src="modernizr.js"></script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-28734688-1']);
+        _gaq.push(['_trackPageview']);
+        
+        _gaq.push( [ '_setCustomVar', 1,  'Presentation',  'WP_Query', 3 ] );
+
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</head>
+<body class="deck-container">
+<script type='text/coderdeck' id='coderdeck-style-example'>
+	<html>
+		<title>test</title>
+		<style>
+			CODE
+		</style>
+		<body>
+        <audio src="callpost.wav" autoplay="autoplay"></audio>
+		</body>
+	</html>
+</script> 	
+
+<article class='slide slide-subhead slide-section'>
+	<h1 class='big override'>Fun with WP_Query</h1>
+	<h2><a href='http://www.ethitter.com/'>Erick Hitter</a><br />
+	<a href='http://twitter.com/ethitter'>@ethitter</a>
+	</h2>
+	<br /><br />
+	<h3 style="text-align: center; color: #fff;">
+		Lead WordPress Developer at <a href="http://www.oomphinc.com/">Oomph, Inc.</a><br />
+		WordPress 3.3 Core Contributor<br />
+		WordCamp Boston Organizer<br />
+		Plugin Author
+	</h3>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>What is WP_Query?</h1>
+	<ul class="bold">
+		<li>WordPress class defined in wp-includes/query.php.</li>
+		<li>Responsible for majority of post-type retrieval from database.</li>
+		<li>Any front-end request made to WordPress is fulfilled by WP_Query in what I refer to as the <em>main query</em>.</li>
+		<li>Used extensively by WordPress but also available to developers.</li>
+	</ul>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1>Using WP_Query</h1>
+	<h3>Most often, this is done in &quot;The Loop&quot; to use the results from the main query.</h3>
+<pre class="prettyprint">&lt;?php
+	if ( have_posts() ) {
+		while( have_posts() ) {
+			the_post();
+		}
+	}
+?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">Using WP_Query: <code>new WP_Query();</code></h1>
+<pre class="prettyprint">&lt;?php
+	$queried_posts = new WP_Query();
+	
+	if ( $queried_posts->have_posts() ) {
+		while( $queried_posts->have_posts() ) {
+			$queried_posts->the_post();
+			//Use functions such as the_title() and the_content() here.
+		}
+	}
+	
+	wp_reset_query();
+	wp_reset_postdata();
+?&gt;</pre>
+
+	<ul>
+		<li>Creates a new object of the type WP_Query, setting up another instance of The Loop.</li>
+		<li><code>wp_reset_query()</code> and <code>wp_reset_postdata()</code> are necessary to restore the main WordPress query. More on this later.</li>
+		<li>Best used whenever <a href="http://codex.wordpress.org/Template_Tags">Template Tags</a> are needed.</li>
+	</ul>
+</article>
+
+<article class='slide slide-subhead'>
+	<h1 class="override small">Using WP_Query: <code>get_posts();</code></h1>
+<pre class="prettyprint">&lt;?php
+	$queried_posts = get_posts();
+	
+	foreach( $queried_posts as $queried_post ) {
+		setup_postdata( $queried_post );
+	}
+	
+	wp_reset_postdata();
+?&gt;</pre>
+	<ul>
+		<li><code>get_posts()</code> generates an array of post objects that match the query parameters.</li>
+		<li><code>setup_postdata()</code> and <code>wp_reset_postdata()</code> can be used if Template Tags, such as <code>the_title()</code>, are needed.</li>
+		<li>Best used when Template Tags aren't needed or post data will be repurposed, such as generating an array of post IDs.</li>
+	</ul>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Resetting Query and Postdata</h1>
+
+<ul>
+	<li>After using <code>new WP_Query()</code>, calling <code>wp_reset_query()</code> and <code>wp_reset_postdata()</code> restores the original query and postdata.</li>
+	<li>After using <code>setup_postdata()</code>, calling <code>wp_reset_postdata()</code> restores the post.</li>
+	<li>Calling the two reset functions ensures that the <a href="http://codex.wordpress.org/Conditional_Tags">Conditional Tags</a> operate as expected and balance of page renders properly.</li>
+</ul>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Query Basics</h1>
+
+<ul>
+	<li>Can pass parameters as an array or query string.
+
+<pre class="prettyprint">&lt;?php
+	$foo = new WP_Query( array( 'posts_per_page' => 5 ) );
+	$bar = new WP_Query( 'posts_per_page=5' );
+?&gt;</pre></li>
+	<li>
+		Array format is more flexible and necessary for queries such as:
+		<ul>
+			<li>'post__not_in'</li>
+			<li>'tax_query'</li>
+			<li>'meta_query'</li>
+		</ul>
+	</li>
+	<li>Query string format is parsed into an array by the <code>WP_Query</code> class.</li>
+</ul>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Query Parameters</h1>
+
+<ul>
+	<li>Extensive list in the Codex at <a href="http://codex.wordpress.org/Class_Reference/WP_Query#Parameters">http://codex.wordpress.org/Class_Reference/WP_Query#Parameters</a></li>
+	<li>Knowing default parameters for query reduces duplication.
+		<ul>
+			<li>'post_type' => 'post'</li>
+			<li>'orderby' => 'date'</li>
+			<li>'order' => 'DESC'</li>
+			<li>'posts_per_page' => <em>Value set under Settings -> Reading</em></li>
+		</ul>
+	</li>
+	<li>Can query for (among many others):
+		<ul>
+			<li>Author</li>
+			<li>Date/time</li>
+			<li>Post type</li>
+			<li>Taxonomy term assignments</li>
+			<li>Meta data</li>
+		</ul>
+	</li>
+</ul>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Sample Query 1</h1>
+<h3>Five most recent posts</h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5
+) ); ?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Sample Query 2</h1>
+<h3>Five most recent posts by author with ID <em>15</em></h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'author' => 15
+) ); ?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Sample Query 3</h1>
+<h3>Five most recent posts by author with ID <em>15</em> in the <em>toast</em></h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'author' => 15,
+	'category_name' => 'toast'
+) ); ?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Sample Query 4</h1>
+<h3>Five most recent posts or pages</h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'post_type' => array( 'post', 'page' )
+) ); ?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Using the <code>tax_query</code></h1>
+<ul>
+	<li>Introduced in WordPress 3.1</li>
+	<li>Permits multiple taxonomy queries within a single <code>WP_Query</code>.</li>
+	<li><strong>Important to remember that the <code>tax_query</code> parameter takes an array of arrays, even if querying for a single taxonomy term.</strong></li>
+	<li>Each query accepts up to five arguments:
+		<ul>
+			<li>taxonomy (required) - string</li>
+			<li>field - <code>term_id</code> or <code>slug</code></li>
+			<li>terms (required) - string or array</li>
+			<li>include_children - boolean, defaults to <code>true</code></li>
+			<li>operator - string, either <code>AND</code>, <code>IN</code>, or <code>NOT IN</code></li>
+		</ul>
+	</li>
+</ul>
+</article>
+
+<article class='slide slide-subhead'>
+<h1 class="override small">Using the <code>tax_query</code></h1>
+<h3>Using the <em>toast</em> example from Sample Query 3:</h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'author' => 15,
+	'category_name' => 'toast'
+) ); ?&gt;</pre>
+<h3>Becomes</h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'author' => 15,
+	'tax_query' => array( array(
+		'taxonomy' => 'category',
+		'field' => 'slug',
+		'terms' => 'toast'
+	) )
+) ); ?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+<h1 class="override small">Using the <code>tax_query</code>: multiple queries</h1>
+<h3>Querying two categories:</h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'author' => 15,
+	'tax_query' => array( array(
+		'taxonomy' => 'category',
+		'field' => 'slug',
+		'terms' => array( 'toast', 'breakfast' ),
+		'operator' => 'AND'
+	) )
+) ); ?&gt;</pre>
+<h3>Querying a category and a tag:</h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'author' => 15,
+	'tax_query' => array(
+		'relation' => 'AND',
+		array(
+			'taxonomy' => 'category',
+			'field' => 'slug',
+			'terms' => 'toast'
+		),
+		array(
+			'taxonomy' => 'post_tag',
+			'field' => 'slug',
+			'terms' => 'wheat'
+		)
+	)
+) ); ?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+<h1 class="override small">Using the <code>tax_query</code>: multiple queries</h1>
+<h3>Querying a category and a tag, excluding subcategories:</h3>
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'author' => 15,
+	'tax_query' => array(
+		'relation' => 'AND',
+		array(
+			'taxonomy' => 'category',
+			'field' => 'slug',
+			'terms' => 'toast',
+			'include_children' => false
+		),
+		array(
+			'taxonomy' => 'post_tag',
+			'field' => 'slug',
+			'terms' => 'wheat'
+		)
+	)
+) ); ?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead'>
+<h1>Using the <code>meta_query</code></h1>
+<ul>
+	<li>Introduced in WordPress 3.1, along with <code>tax_query</code></li>
+	<li>Permits multiple post meta queries within a single <code>WP_Query</code>.</li>
+	<li><strong>Like the <code>tax_query</code>, it is important to note that the <code>meta_query</code> parameter takes an array of arrays.</strong></li>
+	<li>Each query accepts up to four arguments:
+		<ul>
+			<li>key (required) - string</li>
+			<li>value - string or array</li>
+			<li>compare - string, such as <code>=</code>, <code>!=</code>, or <code>IN</code>. Full list on the WP_Query Codex page.</li>
+			<li>type - string, such as <code>NUMERIC</code> or <code>DATE</code>. Full list on the WP_Query Codex page.</li>
+		</ul>
+	</li>
+</ul>
+</article>
+
+<article class='slide slide-subhead'>
+<h1 class="override small">Using the <code>meta_query</code></h1>
+<ul>
+	<li>Five posts with Featured Images
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'meta_query' => array( array(
+		'key' => '_thumbnail_id'
+	) )
+) ); ?&gt;</pre>
+	</li>
+	<li>Five posts using the same thumbnail, ID 100
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'meta_query' => array( array(
+		'key' => '_thumbnail_id',
+		'value' => 100,
+		'type' => 'NUMERIC'
+	) )
+) ); ?&gt;</pre>
+	</li>
+</ul>
+</article>
+
+<article class='slide slide-subhead'>
+<h1 class="override small">Using the <code>meta_query</code>: multiple queries</h1>
+<ul>
+	<li>Five posts with Featured Images <strong>AND</strong> flagged as "featured" posts
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'meta_query' => array(
+		array(
+			'key' => '_thumbnail_id'
+		),
+		array(
+			'key' => '_featured'
+		)
+	)
+) ); ?&gt;</pre>
+	</li>
+	<li>Five posts with Featured Images <strong>OR</strong> flagged as "featured" posts
+<pre class="prettyprint">&lt;?php $foo = new WP_Query( array(
+	'posts_per_page' => 5,
+	'meta_query' => array(
+		'relation' => 'OR',
+		array(
+			'key' => '_thumbnail_id'
+		),
+		array(
+			'key' => '_featured'
+		)
+	)
+) ); ?&gt;</pre>
+	</li>
+</ul>
+</article>
+
+<article class="slide slide-subhead">
+<h1><code>get_query_var();</code></h1>
+<ul>
+	<li>Used to retrieve a query parameter from the main query.</li>
+	<li>
+<pre class="prettyprint">&lt;?php
+	$qty = get_query_var( 'posts_per_page' );
+	$post_type = get_query_var( 'post_type' );
+?&gt;</pre>
+	</li>
+</ul>
+</article>
+
+<article class="slide slide-subhead">
+<h1><code>is_main_query();</code></h1>
+<ul>
+	<li>Introduced in WordPress 3.3</li>
+	<li>Simple conditional tag that determines whether or not the current query is the main WordPress query.</li>
+</ul>
+</article>
+
+<article class="slide slide-subhead">
+<h1><code style="text-decoration: line-through;">query_posts();</code></h1>
+<ul>
+	<li>Evil WordPress function provided to modify or override main query.</li>
+	<li>Accepts query arguments as described in the preceeding slides.</li>
+	<li>Used within a theme file (archive.php, home.php, index.php, single.php, etc).</li>
+	<li>When called, original main query is replaced by the query specified by <code>query_posts()</code>.</li>
+	<li>Introduces unnecessary performance degredation.</li>
+</ul>
+<h3>Thankfully, a far-superior alternative exists!</h3>
+</article>
+
+<article class="slide slide-subhead">
+<h1>The <em>pre_get_posts</em> action</h1>
+<ul>
+	<li>Action is executed right before <code>WP_Query</code> parses the query arguments.</li>
+	<li>Allows any and all query arguments to be modified before a database query is ever run.</li>
+	<li>Can be used to universally modify queries on a WordPress site, or to modify specific queries.</li>
+	<li>Rather than placing modifications in individual theme files as is done with <code>query_posts()</code>, changes can be centralized in functions.php.</li>
+</ul>
+</article>
+
+<article class="slide slide-subhead">
+<h1 class="override small">Using the <em>pre_get_posts</em> action</h1>
+<pre class="prettyprint">&lt;?php
+	function bwpm_pre_get_posts( $query ) {
+		//Herein, modify the query
+	}
+	
+	add_action( 'pre_get_posts', 'bwpm_pre_get_posts' );
+?&gt;</pre>
+<h4>The <code>$query</code> variable contains an object with two helpful methods:</h4>
+<ul>
+	<li><code>get( $query_parameter )</code> - retrieves a specified query parameter from the current query.</li>
+	<li><code>set( $query_parameter, $value )</code> - sets a specified query parameter in the current query.</li>
+</ul>
+</article>
+
+<article class="slide slide-subhead">
+<h1 class="override small">Using the <em>pre_get_posts</em> action</h1>
+<h4>Show only five posts on any and every archive page:</h4>
+<pre class="prettyprint">&lt;?php
+	function bwpm_pre_get_posts( $query ) {
+		$query->set( 'posts_per_page', 5 );
+	}
+	
+	add_action( 'pre_get_posts', 'bwpm_pre_get_posts' );
+?&gt;</pre>
+
+<h4>To do the same on just the front page:</h4>
+<pre class="prettyprint">&lt;?php
+	function bwpm_pre_get_posts( $query ) {
+		if ( $query->is_home() )
+			$query->set( 'posts_per_page', 5 );
+	}
+	
+	add_action( 'pre_get_posts', 'bwpm_pre_get_posts' );
+?&gt;</pre>
+</article>
+
+<article class="slide slide-subhead">
+<h1 class="override small">Using the <em>pre_get_posts</em> action</h1>
+<h4>To do the same only when a <code>posts_per_page</code> value isn't set (is using the WordPress default):</h4>
+<pre class="prettyprint">&lt;?php
+	function bwpm_pre_get_posts( $query ) {
+		if ( ! $query->get( 'posts_page_page' ) )
+			$query->set( 'posts_per_page', 5 );
+	}
+	
+	add_action( 'pre_get_posts', 'bwpm_pre_get_posts' );
+?&gt;</pre>
+</article>
+
+<article class='slide slide-subhead slide-section '>
+<h1 class='big override'>Questions?</h1>
+</article>
+
+<!-- Update these paths to point to the correct files. -->
+<script src="jquery.tmpl.min.js"></script>
+<script src="deck.core.js"></script>
+
+<!-- Code Mirror -->
+<script src="codemirror.js"></script>
+<script src="css.js"></script>
+<script src="javascript.js"></script>
+<script src="htmlmixed.js"></script>
+
+<!-- Prettify -->
+<script src="prettify.js"></script>
+
+<!-- Deck Core and extensions -->
+<script src="deck.status.js"></script>
+<script src="deck.navigation.js"></script>
+<script src='deck.coder.js'></script>
+<script src="deck.hash.js"></script>
+<script src="deck.menu.js"></script>
+
+<script>
+	$(function() {
+		$.deck('.slide');   
+        $(".slide-subhead h1").each( function(index, element){
+            /* Alignment.  3 rules */  
+            if ( (index +1) % 3 == 1%3)
+                $(element).addClass('right');
+            else if ( (index +1) % 3 == 2%3)
+                $(element).addClass('center');
+            else
+                $(element).addClass('left');
+            /* Color.  2 rules */
+            if ( (index +1) % 2 == 1%2)
+                $(element).addClass('violet');
+            else
+                $(element).addClass('red');
+              
+            /* vertical space */ 
+            /*if ( $(element).hasClass('override') === false )
+                $(element).css('padding-top',  0.75 + (2-0.75)*Math.random() + 'em' );*/
+        });
+	});
+</script>
+</body>
+</html>

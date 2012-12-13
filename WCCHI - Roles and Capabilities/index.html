@@ -1,0 +1,489 @@
+<html>
+	<head>
+		<title>WordCamp Chicago 2012 - The Power of WordPress' Roles and Capabilities</title>
+
+		<!-- syntax highlighter styles -->
+		<link rel="stylesheet" href="../impress-js-master/syntax-highlighter/styles/shCore.css" />
+		<!-- Pick a theme from /master/syntax-highlighter/styles/ -->
+		<link rel="stylesheet" href="../impress-js-master/syntax-highlighter/styles/shThemeEclipse.css" />
+
+		<link rel="stylesheet" href="../impress-js-master/style.css" />
+
+		<!-- syntax highlighter depends on XRegExp.js -->
+		<script type="text/javascript" src="../impress-js-master/XRegExp.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/src/shCore.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/scripts/shBrushBash.js"></script>
+		<script type="text/javascript" src="../impress-js-master/syntax-highlighter/scripts/shBrushPhp.js"></script>
+	</head>
+	<body class="impress-not-supported">
+
+	<!--
+			For example this fallback message is only visible when there is `impress-not-supported` class on body.
+	-->
+	<div class="fallback-message">
+			<p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+			<p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+	</div>
+
+	<div class="hint">
+			<p>Use a spacebar or arrow keys to navigate</p>
+	</div>
+	<script>
+	if ("ontouchstart" in document.documentElement) {
+			document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+	}
+	</script>
+
+	<div id="impress">
+		<div id="intro" class="step slide" data-x="0" data-y="0">
+			<h1>The Power of WordPress' Roles and Capabilities</h1>
+			<h2>WordCamp Chicago 2012</h2>
+
+			<div class="intro-credits">
+				<p>Erick Hitter</p>
+				<p>Design Engineer @ Automattic</p>
+				<p><a href="http://www.twitter.com/ethitter" target="_blank">@ethitter</a></p>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="0">
+			<h1>About Me</h1>
+
+			<ul>
+				<li>Design Engineer at Automattic, the company behind WordPress.com</li>
+				<li>Formerly a Senior WordPress Developer with Oomph, Inc. working on the WordPress.com VIP platform</li>
+				<li>3+ years developing WordPress themes and plugins</li>
+				<li>WordPress 3.3 Core Contributor</li>
+				<li>WordCamp Boston Organizer</li>
+				<li>Plugin Author</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="900">
+			<h1>Myths I Hope To Dispell</h1>
+
+			<p>&nbsp;</p>
+
+			<h2>WordPress, as a CMS, lacks adequate controls over user actions, making CMS <strong>____?____</strong> a better choice.</h2>
+
+			<p>&nbsp;</p>
+
+			<p>&nbsp;</p>
+
+			<h2>By show of hands, who has heard this refrain?</h2>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="1800">
+			<h1>Roles and Capabilities</h1>
+
+			<h2><a href="http://codex.wordpress.org/Roles_and_Capabilities" target="_blank">http://codex.wordpress.org/Roles_and_Capabilities</a></h2>
+
+			<p>&nbsp;</p>
+
+			<h2>This Codex article is your friend!</h2>
+
+			<ul>
+				<li>Overview of default roles</li>
+				<li>List of default capabilities</li>
+				<li>Table of default roles' base capabilities</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="3000" data-y="1800">
+			<h1>Default Roles</h1>
+
+			<ul>
+				<li>Administrator</li>
+				<li>Editor</li>
+				<li>Author</li>
+				<li>Contributor</li>
+				<li>Subscriber</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="4500" data-y="1800">
+			<h1>Native Capabilities</h1>
+
+			<ul>
+				<li><code>read</code></li>
+				<li><code>edit_posts</code></li>
+				<li><code>edit_others_posts</code></li>
+				<li><code>publish_posts</code></li>
+				<li><code>switch_themes</code></li>
+				<li><code>edit_themes</code></li>
+				<li><code>manage_options</code></li>
+			</ul>
+
+			<p>&nbsp;</p>
+
+			<h2>This list is far from complete; see <a href="http://codex.wordpress.org/Roles_and_Capabilities#Capabilities" target="_blank">http://codex.wordpress.org/Roles_and_Capabilities#Capabilities</a></h2>
+		</div>
+
+		<div class="step slide" data-x="6000" data-y="1800">
+			<h1>Key Functions</h1>
+
+			<ul>
+				<li><code>get_role()</code></li>
+				<li><code>add_role()</code></li>
+				<li><code>current_user_can()</code></li>
+				<li><code>user_can()</code></li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="7500" data-y="1800">
+			<h1><code>get_role( $role )</code></h1>
+
+			<ul>
+				<li>Retrieve the specified role object, if the role exists.</li>
+				<li>PHP object contains the role's capabilities, plus a number of methods for interacting with the role.</li>
+				<li>If role doesn't exist, returns <code>null</code>.</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="9000" data-y="1800">
+			<h1><code>add_role( $role, $display_name, $capabilities )</code></h1>
+
+			<ul>
+				<li>Add the specified role, <em>if it doesn't exist already</em>.</li>
+				<li>If successful, provides the new role object.</li>
+				<li>If the role exists already, it returns <code>null</code>.</li>
+				<li>Won't update an existing role or the existing role's capabilities.</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="10500" data-y="1800">
+			<h1>Checking capabilities</h1>
+
+			<ul>
+				<li><code>current_user_can( $capability )</code></li>
+				<li><code>user_can( $user, $capapbility )</code></li>
+			</ul>
+
+			<p>Both return a boolean indicating whether or not the user has the specified capability.</p>
+		</div>
+
+		<div class="step slide" data-x="12000" data-y="1800">
+			<h1>Checking user roles</h1>
+
+			<h2>Don't</h2>
+
+			<p><code>current_user_can()</code> and <code>user_can()</code> will accept a role in place of the capability, but it's unsafe to do so.</p>
+
+			<p>A user could have the role specified, but a critical capability could be removed.</p>
+		</div>
+
+		<div class="step slide" data-x="12000" data-y="2700">
+			<h1>Modify an existing role</h1>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true;">&lt;?php
+/**
+ * It's bad to edit plugins from the Dashboard, so let's stop that.
+ *
+ * @uses get_role
+ * @action init
+ * @return null
+ */
+function wcchi_dont_edit_plugins() {
+	$administrator = get_role( 'administrator' );
+
+	$administrator->remove_cap( 'edit_plugins' );
+}
+add_action( 'init', 'wcchi_dont_edit_plugins' );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="13500" data-y="2700">
+			<h1>Add a new role</h1>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true;">&lt;?php
+/**
+ * Add a role that can only interact with pages
+ *
+ * @uses get_role, add_role
+ * @action init
+ * @return null
+ */
+function wcchi_page_manager_role() {
+	$page_manager = get_role( 'wcchi_page_manager' );
+
+	if ( null === $page_manager )
+		$page_manager = add_role( 'wcchi_page_manager' );
+
+	$page_manager->add_cap( 'read' );
+	$page_manager->add_cap( 'read_private_pages' );
+	$page_manager->add_cap( 'edit_pages' );
+	$page_manager->add_cap( 'edit_others_pages' );
+	$page_manager->add_cap( 'edit_published_pages' );
+	$page_manager->add_cap( 'edit_private_pages' );
+	$page_manager->add_cap( 'publish_pages' );
+	$page_manager->add_cap( 'delete_pages' );
+	$page_manager->add_cap( 'delete_others_pages' );
+	$page_manager->add_cap( 'delete_published_pages' );
+	$page_manager->add_cap( 'delete_private_pages' );
+	$page_manager->add_cap( 'upload_files' );
+}
+add_action( 'init', 'wcchi_page_manager_role' );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="15000" data-y="2700">
+			<h1>How does WordPress leverages roles?</h1>
+
+			<p>In Core, when creating a new post or page:</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true;">&lt;?php
+// wp-admin/post-new.php, line 39-40
+
+if ( ! current_user_can( $post_type_object->cap->edit_posts ) )
+	wp_die( __( 'Cheatin&#8217; uh?' ) );
+?&gt;</pre>
+			</div>
+
+			<p>&nbsp;</p>
+
+			<p>In Core, deterining if the current user can manage widgets:</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true;">&lt;?php
+// wp-admin/widgets.php, line 15-16
+
+if ( ! current_user_can('edit_theme_options') )
+	wp_die( __( 'Cheatin&#8217; uh?' ));
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="16500" data-y="2700">
+			<h1>How can you leverage roles?</h1>
+
+			<p>Registering a meta box:</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: [10,23]">&lt;?php
+/**
+ * Register custom metabox
+ *
+ * @uses current_user_can, add_meta_box
+ * @action add_meta_boxes
+ * @return null
+ */
+function wcchi_register_custom_metabox() {
+	if ( current_user_can( 'edit_others_posts' ) )
+		add_meta_box( 'wcchi-meta-box', 'WCCHI Metabox', 'wcchi_custom_metabox',
+			'post', 'normal', 'default' );
+}
+add_action( 'add_meta_boxes', 'wcchi_register_custom_metabox' );
+
+/**
+ * Render custom metabox
+ *
+ * @uses current_user_can
+ * @return string or null
+ */
+function wcchi_custom_metabox() {
+	if ( ! current_user_can( 'edit_others_posts' ) )
+		return;
+
+	echo 'Hello world!';
+}
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="18000" data-y="2700">
+			<h1>How can you leverage roles?</h1>
+
+			<p>Creating a custom admin page:</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: 10">&lt;?php
+/**
+ * Register a custom admin page
+ *
+ * @uses add_options_page
+ * @action admin_menu
+ * @return null
+ */
+function wcchi_register_custom_admin_page() {
+	add_options_page( 'WCCHI Options', 'WCCHI Options', 'manage_options',
+		'wcchi-options', 'wcchi_custom_admin_page' );
+}
+add_action( 'admin_menu', 'wcchi_register_custom_admin_page' );
+
+/**
+ * Render custom admin page contents
+ *
+ * @return string
+ */
+function wcchi_custom_admin_page() {
+	echo 'Hello world!';
+}
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="19500" data-y="2700">
+			<h1>Custom capabilities</h1>
+
+			<p>WordPress has default capabilities, but nothing's stopping you from adding your own.</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: 18;">&lt;?php
+/**
+ * Add a role that can only interact with pages
+ *
+ * @uses get_role, add_role
+ * @action init
+ * @return null
+ */
+function wcchi_page_manager_role() {
+	$page_manager = get_role( 'wcchi_page_manager' );
+
+	if ( null === $page_manager )
+		$page_manager = add_role( 'wcchi_page_manager' );
+
+	$page_manager->add_cap( 'read' );
+	&hellip;
+	$page_manager->add_cap( 'upload_files' );
+	$page_manager->add_cap( 'wcchi_manage_options' );
+}
+add_action( 'init', 'wcchi_page_manager_role' );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="21000" data-y="2700">
+			<h1>Custom capabilities</h1>
+
+			<p>WordPress has default capabilities, but nothing's stopping you from adding your own.</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: [11,14];">&lt;?php
+/**
+ * Let Administrators and Editors access the custom admin page
+ *
+ * @uses get_role
+ * @action init
+ * @return null
+ */
+function wcchi_modify_roles() {
+	$administrator = get_role( 'administrator' );
+	$administrator->add_cap( 'wcchi_manage_options' );
+
+	$editor = get_role( 'editor' );
+	$editor->add_cap( 'wcchi_manage_options' );
+}
+add_action( 'init', 'wcchi_modify_roles' );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="21000" data-y="3600">
+			<h1>Want more granular control?</h1>
+
+			<p>&nbsp;</p>
+
+			<h1 style="color: #4d4d4d;"><code>map_meta_cap</code> is your friend</h1>
+		</div>
+
+		<div class="step slide" data-x="22500" data-y="3600">
+			<h1><code>map_meta_cap</code></h1>
+
+			<h2><code>map_meta_cap()</code> is in <code>wp-includes/capabilities.php</code>.</h2>
+
+			<p>Within that function is the <code>map_meta_cap</code> filter.</p>
+
+			<code>apply_filters('map_meta_cap', $caps, $cap, $user_id, $args)</code>
+
+			<ul>
+				<li><code>'map_meta_cap'</code>: filter name</li>
+				<li><code>$caps</code>: all of the meta capabilities already determined by WordPress</li>
+				<li><code>$cap</code>: the capability that triggered this filter call</li>
+				<li><code>$user_id</code>: user ID either for the current user or a specific user when using <code>user_can()</code></li>
+				<li><code>$args</code>: optional additional information relevant to current capability check</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="24000" data-y="3600">
+			<h1><code>map_meta_cap</code></h1>
+
+			<h2>Okay, how is this useful?</h2>
+
+			<ul>
+				<li>Prevent a specific post from being modified (edited, status change, etc).</li>
+				<li>Block a specific user from adding users, promoting users, or editing user profile data.</li>
+			</ul>
+
+			<p>In short, this provides a level of control beyond just the roles themselves.</p>
+		</div>
+
+		<div class="step slide" data-x="25500" data-y="3600">
+			<h1><code>map_meta_cap</code> example</h1>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: [15,24];">&lt;?php
+/**
+ * Prevent certain posts from being modified under certain conditions
+ *
+ * @global $post
+ * @param array $caps
+ * @param string $cap
+ * @param int $user_id
+ * @param array $args
+ * @uses get_post_meta
+ * @filter map_meta_cap
+ * @return array
+ */
+function wcchi_filter_map_meta_cap( $caps, $cap, $user_id, $args ) {
+	//Block deletion of posts with a certain meta key
+	if ( 'delete_post' == $cap && get_post_meta( (int) $args[ 0 ],
+		'wcchi_block_deletion', true ) )
+		$caps[] = 'do_not_allow';
+
+	//Block publication of posts with a certain meta key
+	global $post;
+	if ( is_object( $post ) && in_array( 'publish_posts', $caps )
+		&& get_post_meta( $post->ID, 'wcchi_block_publication', true ) )
+		$caps[] = 'do_not_allow';
+
+	return $caps;
+}
+add_filter( 'map_meta_cap', 'wcchi_filter_map_meta_cap', 10, 4 );
+?&gt;</pre>
+			</div>
+		</div>
+
+		<div class="step slide" data-x="25500" data-y="4500">
+			<h1>Questions?</h1>
+
+			<h2>Slides are available at <a href="http://goo.gl/k6Ens" target="_blank">http://www.ethitter.com/blog/</a>.</h2>
+
+			<h2>Check Twitter for a link as well: <a href="http://www.twitter.com/ethitter" target="_blank">@ethitter</a>.</h2>
+		<!-- end -->
+	</div>
+	<!--
+
+			Last, but not least.
+
+			To make all described above really work, you need to include impress.js in the page.
+			I strongly encourage to minify it first.
+
+			In here I just include full source of the script to make it more readable.
+
+			You also need to call a `impress().init()` function to initialize impress.js presentation.
+			And you should do it in the end of your document. Not only because it's a good practice, but also
+			because it should be done when the whole document is ready.
+			Of course you can wrap it in any kind of "DOM ready" event, but I was too lazy to do so ;)
+
+	-->
+	<script src="../impress-js-master/impress.js"></script>
+	<script>SyntaxHighlighter.all(); impress().init();</script>
+
+	</body>
+</html>
+
