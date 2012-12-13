@@ -159,7 +159,7 @@ if ( !isset($wp_did_header) ) {
 		</div>
 
 		<div class="step slide" data-x="7500" data-y="2700">
-			<h1>In conclusion</h1>
+			<h1>In conclusion&hellip;</h1>
 
 			<p>&nbsp;</p>
 
@@ -292,16 +292,24 @@ require_once( ABSPATH . WPINC . '/template-loader.php' );
 			<p>&nbsp;</p>
 
 			<div class="code-container">
-				<pre class="brush: php; gutter: true; highlight: [5,6,7];">&lt;?php
-// Ever wonder what process WordPress undertakes when someone visits your site?
-require_once( dirname(__FILE__) . '/wp-load.php' );
+				<pre class="brush: php; gutter: true; highlight: [14]">&lt;?php
+/**
+ * Loads the WordPress environment and template.
+ *
+ * @package WordPress
+ */
 
-// Or how it translates that nice permalink to the database query that ultimately
-// delivers the content your visitors requested?
-wp();
+if ( !isset($wp_did_header) ) {
 
-// Or what it takes to load the appropriate template from your site's theme?
-require_once( ABSPATH . WPINC . '/template-loader.php' );
+	$wp_did_header = true;
+
+	require_once( dirname(__FILE__) . '/wp-load.php' );
+
+	wp();
+
+	require_once( ABSPATH . WPINC . '/template-loader.php' );
+
+}
 </pre>
 			</div><!-- .code-container -->
 		</div>
@@ -379,16 +387,24 @@ require_once( ABSPATH . WPINC . '/template-loader.php' );
 			<p>&nbsp;</p>
 
 			<div class="code-container">
-				<pre class="brush: php; gutter: true; highlight: [9,10];">&lt;?php
-// Ever wonder what process WordPress undertakes when someone visits your site?
-require_once( dirname(__FILE__) . '/wp-load.php' );
+				<pre class="brush: php; gutter: true; highlight: [16]">&lt;?php
+/**
+ * Loads the WordPress environment and template.
+ *
+ * @package WordPress
+ */
 
-// Or how it translates that nice permalink to the database query that ultimately
-// delivers the content your visitors requested?
-wp();
+if ( !isset($wp_did_header) ) {
 
-// Or what it takes to load the appropriate template from your site's theme?
-require_once( ABSPATH . WPINC . '/template-loader.php' );
+	$wp_did_header = true;
+
+	require_once( dirname(__FILE__) . '/wp-load.php' );
+
+	wp();
+
+	require_once( ABSPATH . WPINC . '/template-loader.php' );
+
+}
 </pre>
 			</div><!-- .code-container -->
 		</div>
