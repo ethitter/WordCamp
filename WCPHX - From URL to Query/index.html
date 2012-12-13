@@ -309,15 +309,49 @@ require_once( ABSPATH . WPINC . '/template-loader.php' );
 		<div class="step slide" data-x="16500" data-y="4500">
 			<h1><code>wp()</code></h1>
 
+			<h2>Short function name, big responsibilities.</h2>
 
+			<p>After all, it:</p>
+
+			<ul>
+				<li>confirms the current user;</li>
+				<li>determines what to query the database for based on the URL;</li>
+				<li>executes said queries;</li>
+				<li>sets more global variables, such as <code>$post</code>;</li>
+				<li>and fires the <code>wp</code> action.</li>
+			</ul>
 		</div>
 
-		<div class="step slide" data-x="21000" data-y="2700">
-			<h1 class="middle">In other words, <code>map_meta_cap</code> introduces dependencies within WordPress' capabilities system.</h1>
+		<div class="step slide" data-x="18000" data-y="4500">
+			<h1><code>WP::parse_request()</code></h1>
+
+			<p>This utilizes <code>WP_Rewrite</code>'s rules, which are nothing more than regular expressions.</p>
+
+			<p>&nbsp;</p>
+
+			<p>The rules are looped through until a match is found.</p>
+
+			<p>The <code>request</code> filter and <code>parse_request</code> action both fire. Both can be used to change the query WP runs next.</p>
+
+			<p>&nbsp;</p>
+
+			<p>If a match is found, we have query variables for <code>WP_Query</code>.</p>
+
+			<p>If not, we're headed to the homepage.</p>
 		</div>
 
-		<div class="step slide" data-x="22500" data-y="2700">
-			<h1 class="middle">Questions before we move into code?</h1>
+		<div class="step slide" data-x="19500" data-y="4500">
+			<h1>And now, we query</h1>
+
+			<p>Using <code>WP_Query</code> and the query variables already determined, WP goes to the database.</p>
+
+			<p>Before running the query, the <code>pre_get_posts</code> action fires, providing another opportunity to modify the query.</p>
+
+			<p>&nbsp;</p>
+
+			<p>Since this is the main query, both <code>$wp_query</code> and <code>$wp_the_query</code> are populated with the query object.</p>
+
+			<p>Otherwise, this is no different than using <code>new WP_Query</code> or <code>get_posts()</code>.</p>
 		</div>
 
 		<div class="step slide" data-x="22500" data-y="3600">
