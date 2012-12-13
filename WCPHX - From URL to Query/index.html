@@ -61,7 +61,16 @@
 		</div>
 
 		<div class="step slide" data-x="1500" data-y="900">
-			<h1>Questions that spawned this talk</h1>
+			<h1>Assumptions we'll operate under</h1>
+
+			<ul>
+				<li>Using <a href="http://codex.wordpress.org/Using_Permalinks#mod_rewrite:_.22Pretty_Permalinks.22" target="_blank">Pretty Permalinks</a>.</li>
+				<li>Not making requests to <code>/wp-admin/</code>.</li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="1500" data-y="1800">
+			<h1>The Premise</h1>
 
 			<p>&nbsp;</p>
 
@@ -72,114 +81,123 @@
 			</ul>
 		</div>
 
-		<div class="step slide" data-x="1500" data-y="1800">
-			<h1>Roles and Capabilities</h1>
-
-			<h2><a href="http://codex.wordpress.org/Roles_and_Capabilities" target="_blank">http://codex.wordpress.org/Roles_and_Capabilities</a></h2>
-
-			<p>&nbsp;</p>
-
-			<h2>This Codex article is your friend!</h2>
-
-			<ul>
-				<li>Overview of default roles</li>
-				<li>List of default capabilities</li>
-				<li>Table of default roles' standard capabilities</li>
-			</ul>
-		</div>
-
 		<div class="step slide" data-x="3000" data-y="1800">
-			<h1>Default Roles</h1>
+			<h1>In Short...</h1>
 
-			<ul>
-				<li>Administrator</li>
-				<li>Editor</li>
-				<li>Author</li>
-				<li>Contributor</li>
-				<li>Subscriber</li>
-			</ul>
+			<h1 class="middle" style="color: #4D4D4D;">Magic</h1>
 		</div>
-
-
 
 		<div class="step slide" data-x="4500" data-y="1800">
-			<h1>Native Capabilities</h1>
-
-			<ul>
-				<li><code>read</code></li>
-				<li><code>edit_posts</code></li>
-				<li><code>edit_others_posts</code></li>
-				<li><code>publish_posts</code></li>
-				<li><code>switch_themes</code></li>
-				<li><code>edit_themes</code></li>
-				<li><code>manage_options</code></li>
-			</ul>
+			<h1>Seriously though</h1>
 
 			<p>&nbsp;</p>
 
-			<h2>This list is far from complete; see <a href="http://codex.wordpress.org/Roles_and_Capabilities#Capabilities" target="_blank">http://codex.wordpress.org/Roles_and_Capabilities#Capabilities</a></h2>
+			<p>&nbsp;</p>
+
+			<h2>WordPress contains a number of classes that work together with the help of some procedural glue.</h2>
 		</div>
 
-		<div class="step slide" data-x="6000" data-y="1800">
-			<h1>Key Functions</h1>
+		<div class="step slide" data-x="4500" data-y="2700">
+			<h1>Getting started: <code>index.php</code></h1>
 
-			<ul>
-				<li><code>get_role()</code></li>
-				<li><code>add_role()</code></li>
-				<li><strong><code>current_user_can()</code></strong></li>
-				<li><strong><code>user_can()</code></strong></li>
-			</ul>
-		</div>
+			<p>With Pretty Permalinks, requests that don't correspond to actual files on the server are sent to <code>index.php</code>.</p>
 
-		<div class="step slide" data-x="7500" data-y="1800">
-			<h1>Checking capabilities</h1>
-
-			<ul>
-				<li><code>current_user_can( $capability )</code></li>
-				<li><code>user_can( $user, $capapbility )</code></li>
-			</ul>
-
-			<p>Both return a boolean indicating whether or not the user has the specified capability.</p>
-		</div>
-
-		<div class="step slide" data-x="9000" data-y="1800">
-			<h1>Checking user roles</h1>
-
-			<h2>Don't</h2>
-
-			<p><code>current_user_can()</code> and <code>user_can()</code> will accept a role in place of the capability, but it's unsafe to do so.</p>
-
-			<p>A user could have the role specified, but a critical capability could be removed.</p>
-
-			<p>Also, this breaks much of what I'll cover today.</p>
-		</div>
-
-		<div class="step slide" data-x="10500" data-y="1800">
-			<h1>How does WordPress leverages capabilities?</h1>
-
-			<p>In Core, when creating a new post or page:</p>
-
-			<div class="code-container">
-				<pre class="brush: php; gutter: true;">&lt;?php
-// wp-admin/post-new.php, line 39-40
-
-if ( ! current_user_can( $post_type_object->cap->edit_posts ) )
-	wp_die( __( 'Cheatin&#8217; uh?' ) );
-?&gt;</pre>
-			</div>
+			<p>Not much going on here:</p>
 
 			<p>&nbsp;</p>
 
-			<p>In Core, deterining if the current user can manage widgets:</p>
+			<div class="code-container">
+				<pre class="brush: php; gutter: true;">&lt;?php
+/**
+ * Front to the WordPress application. This file doesn't do anything, but loads
+ * wp-blog-header.php which does and tells WordPress to load the theme.
+ *
+ * @package WordPress
+ */
+
+/**
+ * Tells WordPress to load the WordPress theme and output it.
+ *
+ * @var bool
+ */
+define('WP_USE_THEMES', true);
+
+/** Loads the WordPress Environment and Template */
+require('./wp-blog-header.php');
+</pre>
+			</div><!-- .code-container -->
+		</div>
+
+		<div class="step slide" data-x="6000" data-y="2700">
+			<h1><code>wp-blog-header.php</code></h1>
+
+			<p>Not much here either, but what's here is <em>important</em>!</p>
+
+			<p>&nbsp;</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: [12,14,16]">&lt;?php
+/**
+ * Loads the WordPress environment and template.
+ *
+ * @package WordPress
+ */
+
+if ( !isset($wp_did_header) ) {
+
+	$wp_did_header = true;
+
+	require_once( dirname(__FILE__) . '/wp-load.php' );
+
+	wp();
+
+	require_once( ABSPATH . WPINC . '/template-loader.php' );
+
+}
+</pre>
+			</div><!-- .code-container -->
+		</div>
+
+		<div class="step slide" data-x="7500" data-y="2700">
+			<h1>In conclusion</h1>
+
+			<p>&nbsp;</p>
+
+			<p>&nbsp;</p>
+
+			<h2 style="text-align: center;">You caught those three highlighted lines, right?</h2>
+
+			<p>&nbsp;</p>
+
+			<h2 style="text-align: center;">So we can go home now?</h2>
+
+			<p>&nbsp;</p>
+
+			<p>&nbsp;</p>
+
+			<p style="text-align: center;"><small>:)</small></p>
+		</div>
+
+		<div class="step slide" data-x="9000" data-y="2700">
+			<h1>What do I mean?</h1>
+
+			<h2>Remember the premises?</h2>
+
+			<p>&nbsp;</p>
 
 			<div class="code-container">
 				<pre class="brush: php; gutter: true;">&lt;?php
-// wp-admin/widgets.php, line 15-16
+// Ever wonder what process WordPress undertakes when someone visits your site?
+require_once( dirname(__FILE__) . '/wp-load.php' );
 
-if ( ! current_user_can('edit_theme_options') )
-	wp_die( __( 'Cheatin&#8217; uh?' ) );
-?&gt;</pre>
-			</div>
+// Or how it translates that nice permalink to the database query that ultimately
+// delivers the content your visitors requested?
+wp();
+
+// Or what it takes to load the appropriate template from your site's theme?
+require_once( ABSPATH . WPINC . '/template-loader.php' );
+</pre>
+			</div><!-- .code-container -->
 		</div>
 
 		<div class="step slide" data-x="10500" data-y="2700">
