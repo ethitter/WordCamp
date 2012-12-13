@@ -200,31 +200,35 @@ require_once( ABSPATH . WPINC . '/template-loader.php' );
 			</div><!-- .code-container -->
 		</div>
 
-		<div class="step slide" data-x="10500" data-y="2700">
-			<h1>Need more granular control?</h1>
+		<div class="step slide" data-x="9000" data-y="3600">
+			<h1><code>wp-load.php</code></h1>
+
+			<p>You'll be shocked to learn that this file starts the process of loading WordPress.</p>
 
 			<p>&nbsp;</p>
 
-			<h1 style="color: #4d4d4d;"><code>map_meta_cap</code> is your friend</h1>
+			<p>But how?</p>
+
+			<p>&nbsp;</p>
+
+			<p>Loads <code>wp-config.php</code>, which in turn loads <code>wp-settings.php</code>.</p>
 		</div>
 
-		<div class="step slide" data-x="12000" data-y="2700">
-			<h1>But why?</h1>
+		<div class="step slide" data-x="10500" data-y="3600">
+			<h1><code>wp-settings.php</code></h1>
 
-			<p>With <code>map_meta_cap</code>, you can:</p>
+			<p><a href="http://core.trac.wordpress.org/ticket/13237" title="Absense of alots lowers community morale" target="_blank">Alot</a> happens in here.</p>
 
 			<ul>
-				<li>Prevent a specific post from being modified (edited, status changed, deleted, etc).</li>
-				<li>Block a specific user from performing some action his/her role would otherwise allow.</li>
-				<li>Grant a user a capability in a particular situation.</li>
+				<li>At various stages, much of Core is loaded, including Multisite if needed.</li>
+				<li>WordPress attempts to connect to the database specificed in <code>wp-config.php</code>.</li>
+				<li>Persistent caching is loaded and initialized.</li>
+				<li>Active plugins are loaded.</li>
+				<li>Active theme's functions.php file loads.</li>
 			</ul>
-
-			<p>&nbsp;</p>
-
-			<p>In short, this provides a level of control beyond just the roles themselves.</p>
 		</div>
 
-		<div class="step slide" data-x="13500" data-y="2700">
+		<div class="step slide" data-x="12000" data-y="3600">
 			<h1>But how?</h1>
 
 			<p>There are really two types of capabilities in WordPress:</p>
