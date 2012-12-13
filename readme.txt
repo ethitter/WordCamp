@@ -1,1 +1,1 @@
-Presentations
+Presentations about WordPress from various WordCamps, WordPress meetups, and such.
