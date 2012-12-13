@@ -217,70 +217,99 @@ require_once( ABSPATH . WPINC . '/template-loader.php' );
 		<div class="step slide" data-x="10500" data-y="3600">
 			<h1><code>wp-settings.php</code></h1>
 
-			<p><a href="http://core.trac.wordpress.org/ticket/13237" title="Absense of alots lowers community morale" target="_blank">Alot</a> happens in here.</p>
+			<p><a href="http://core.trac.wordpress.org/ticket/13237" title="Absense of alots lowers community morale - @JJJ" target="_blank">Alot</a> happens in here.</p>
 
 			<ul>
-				<li>At various stages, much of Core is loaded, including Multisite if needed.</li>
+				<li>At various stages, much of Core (<code>/wp-includes/</code>) is loaded, including Multisite if needed.</li>
 				<li>WordPress attempts to connect to the database specificed in <code>wp-config.php</code>.</li>
 				<li>Persistent caching is loaded and initialized.</li>
 				<li>Active plugins are loaded.</li>
-				<li>Active theme's functions.php file loads.</li>
+				<li>Active theme's <code>functions.php</code> file loads.</li>
 			</ul>
 		</div>
 
 		<div class="step slide" data-x="12000" data-y="3600">
-			<h1>But how?</h1>
+			<h1><code>wp-settings.php</code></h1>
 
-			<p>There are really two types of capabilities in WordPress:</p>
+			<p>Up to now, we've mostly been loading additional files, defining constants, and calling an occassional function.</p>
 
-			<ul>
-				<li><strong>primitive</strong> - broad indication that a given role <em>might</em> or <em>might not</em> be able to do something</li>
-				<li><strong>meta</strong> - contextual determination that a given user <em>can</em> or <em>cannot</em> do something</li>
-			</ul>
+			<p>In other words, lots of glue, nothing to stick together, yet.</p>
 
 			<p>&nbsp;</p>
 
-			<p><code>map_meta_cap</code> translates a user's primitive capabilities to his/her meta capabilities.</p>
-		</div>
-
-		<div class="step slide" data-x="15000" data-y="2700">
-			<h1>How are the two different?</h1>
+			<p>Now, these classes (and more) are instantiated into their global variables.</p>
 
 			<ul>
-				<li>Primitive capabilities are assigned to user roles.</li>
-				<li>Meta capabilities <em>never should be</em> assigned to a role.</li>
+				<li><code>WP_Query</code></li>
+				<li><code>WP_Rewrite</code></li>
+				<li><code>WP</code></li>
+				<li><code>WP_Roles</code></li>
+			</ul>
+		</div>
+
+		<div class="step slide" data-x="13500" data-y="3600">
+			<h1>But wait, there's more!</h1>
+
+			<h2><code>wp-settings.php</code>, that is.</h2>
+
+			<p>&nbsp;</p>
+
+			<ul>
+				<li>Set up information about the current user, if someone is logged in.</li>
 				<li>
-					Primitive capabilities are generally plural, meta capabilities are singular.
+					Actions!
 					<ul>
-						<li><code>edit_posts</code></li>
-						<li><code>edit_post</code></li>
+						<li><code>after_setup_theme</code></li>
+						<li><code>init</code></li>
+						<li><code>wp_loaded</code></li>
 					</ul>
 				</li>
 			</ul>
 		</div>
 
-		<div class="step slide" data-x="16500" data-y="2700">
-			<h1>Contextual determination? Say what?</h1>
+		<div class="step slide" data-x="15000" data-y="3600">
+			<h1>So where are we now?</h1>
 
-			<p><strong>Intent</strong>: to publish a post you wrote</p>
+			<ul>
+				<li>Most of WordPress' core functionality is loaded.</li>
+				<li>Plugins and the theme's <code>functions.php</code> are running.</li>
+				<li>Common global variables are instantiated with their corresponding classes.</li>
+				<li>The user is logged in.</li>
+			</ul>
 
-			<p><strong>Need</strong>: <code>publish_posts</code>, <code>edit_posts</code></p>
+			<p>&nbsp;</p>
+
+			<p>&nbsp;</p>
+
+			<h1>Now what?</h1>
 		</div>
 
-		<div class="step slide" data-x="18000" data-y="2700">
-			<h1>Contextual determination? Say what?</h1>
+		<div class="step slide" data-x="15000" data-y="4500">
+			<h1>Let's find some posts!</h1>
 
-			<p><strong>Intent</strong>: to publish a post someone else wrote</p>
+			<p>At this point, we're back in <code>wp-blog-header.php</code>.</p>
 
-			<p><strong>Need</strong>: <code>publish_posts</code>, <code>edit_posts</code>, <code>edit_others_posts</code></p>
+			<p>&nbsp;</p>
+
+			<div class="code-container">
+				<pre class="brush: php; gutter: true; highlight: [5,6,7];">&lt;?php
+// Ever wonder what process WordPress undertakes when someone visits your site?
+require_once( dirname(__FILE__) . '/wp-load.php' );
+
+// Or how it translates that nice permalink to the database query that ultimately
+// delivers the content your visitors requested?
+wp();
+
+// Or what it takes to load the appropriate template from your site's theme?
+require_once( ABSPATH . WPINC . '/template-loader.php' );
+</pre>
+			</div><!-- .code-container -->
 		</div>
 
-		<div class="step slide" data-x="19500" data-y="2700">
-			<h1>Contextual determination? Say what?</h1>
+		<div class="step slide" data-x="16500" data-y="4500">
+			<h1><code>wp()</code></h1>
 
-			<p><strong>Intent</strong>: to moderate a comment</p>
 
-			<p><strong>Need</strong>: <code>moderate_comments</code>, <code>edit_posts</code></p>
 		</div>
 
 		<div class="step slide" data-x="21000" data-y="2700">
