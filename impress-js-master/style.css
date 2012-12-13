@@ -337,7 +337,7 @@ h3 { color: #4d4d4d; font-size: 24px; line-height: 1.25; margin-bottom: 1em; }
 
 h1 strong { font-size: 1.4em; }
 h1 span { color: #4d4d4d; }
-em { color: #000; font-style: italic; }
+em { /*color: #000;*/ font-style: italic; }
 strong { font-weight: bold; }
 
 p { margin-bottom: .8em; }
