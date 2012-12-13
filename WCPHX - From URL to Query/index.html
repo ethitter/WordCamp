@@ -317,7 +317,7 @@ require_once( ABSPATH . WPINC . '/template-loader.php' );
 				<li>confirms the current user;</li>
 				<li>determines what to query the database for based on the URL;</li>
 				<li>executes said queries;</li>
-				<li>sets more global variables, such as <code>$post</code>;</li>
+				<li>sends HTTP status header and sets more global variables, such as <code>$post</code>;</li>
 				<li>and fires the <code>wp</code> action.</li>
 			</ul>
 		</div>
@@ -347,6 +347,8 @@ require_once( ABSPATH . WPINC . '/template-loader.php' );
 
 			<p>Before running the query, the <code>pre_get_posts</code> action fires, providing another opportunity to modify the query.</p>
 
+			<p>After running the query, WP sets its conditional tags.</p>
+
 			<p>&nbsp;</p>
 
 			<p>Since this is the main query, both <code>$wp_query</code> and <code>$wp_the_query</code> are populated with the query object.</p>
@@ -354,175 +356,83 @@ require_once( ABSPATH . WPINC . '/template-loader.php' );
 			<p>Otherwise, this is no different than using <code>new WP_Query</code> or <code>get_posts()</code>.</p>
 		</div>
 
-		<div class="step slide" data-x="22500" data-y="3600">
-			<h1><code>map_meta_cap</code></h1>
+		<div class="step slide" data-x="21000" data-y="4500">
+			<h1>Now what?</h1>
 
-			<h2><code>map_meta_cap()</code> is in <code>wp-includes/capabilities.php</code>.</h2>
-
-			<p>&nbsp;</p>
-
-			<p>Within that function is the <code>map_meta_cap</code> filter.</p>
-
-			<p>&nbsp;</p>
-
-			<p>WordPress handles the function, we really care about the filter.</p>
+			<ol>
+				<li>Send some HTTP headers.</li>
+				<li>Set some global variables.</li>
+				<li>Fire the <code>wp</code> action.</li>
+				<li>Carry on.</li>
+			</ol>
 		</div>
 
-		<div class="step slide" data-x="24000" data-y="3600">
-			<h1><code>map_meta_cap</code></h1>
-
-			<code>apply_filters('map_meta_cap', $caps, $cap, $user_id, $args)</code>
-
-			<ul>
-				<li><code>'map_meta_cap'</code>: filter name</li>
-				<li><code>$caps</code>: all of the meta capabilities already determined by WordPress</li>
-				<li><code>$cap</code>: the primitive capability that triggered this filter call</li>
-				<li><code>$user_id</code>: user ID either for the current user or a specific user when using <code>user_can()</code></li>
-				<li><code>$args</code>: optional additional information relevant to current capability check</li>
-			</ul>
+		<div class="step slide" data-x="22500" data-y="4500">
+			<h1 class="middle" style="margin-top: 265px;">At this point, WordPress is loaded, queries have run, and it's time to show something to the user.</h1>
 		</div>
 
-		<div class="step slide" data-x="25500" data-y="3600">
-			<h1><code>$args</code></h1>
+		<div class="step slide" data-x="22500" data-y="5400">
+			<h1>Home stretch!</h1>
 
-			<p><strong>This is important!</strong></p>
-
-			<p>&nbsp;</p>
-
-			<p>The <code>$args</code> parameter is both incredibly useful, and annoyingly vague.</p>
+			<p>Yet again, we're back in <code>wp-blog-header.php</code>.</p>
 
 			<p>&nbsp;</p>
-
-			<p><code>$args</code> is a numerically-indexed array whose values contain data relevant to the current capabilities check.</p>
-
-			<p>&nbsp;</p>
-
-			<p>Unfortunately, isn't always populated, forcing one to use globals in some cases.</p>
-
-			<p>&nbsp;</p>
-
-			<p>Clear as mud, right?</p>
-		</div>
-
-		<div class="step slide" data-x="27000" data-y="3600">
-			<h1>Block deletion</h1>
 
 			<div class="code-container">
-				<pre class="brush: php; gutter: true; highlight: [18];">&lt;?php
-/**
- * Prevent a post from being deleted if a meta key is present
- *
- * @param array $caps
- * @param string $cap
- * @param int $user_id
- * @param array $args
- * @uses get_post_meta
- * @filter map_meta_cap
- * @return array
- */
-function wcto_block_post_deletion( $caps, $cap, $user_id, $args ) {
-	if (
-		'delete_post' == $cap
-		&& get_post_meta( (int) $args[0], '_block_deletion', true )
-	)
-		$caps[] = 'do_not_allow';
+				<pre class="brush: php; gutter: true; highlight: [9,10];">&lt;?php
+// Ever wonder what process WordPress undertakes when someone visits your site?
+require_once( dirname(__FILE__) . '/wp-load.php' );
 
-	return $caps;
-}
-add_filter( 'map_meta_cap', 'wcto_block_post_deletion', 10, 4 );
-?&gt;</pre>
-			</div>
+// Or how it translates that nice permalink to the database query that ultimately
+// delivers the content your visitors requested?
+wp();
+
+// Or what it takes to load the appropriate template from your site's theme?
+require_once( ABSPATH . WPINC . '/template-loader.php' );
+</pre>
+			</div><!-- .code-container -->
 		</div>
 
-		<div class="step slide" data-x="28500" data-y="3600">
-			<h1>Block file uploads</h1>
+		<div class="step slide" data-x="24000" data-y="5400">
+			<h1>Welcome to the Template Loader</h1>
 
-			<div class="code-container">
-				<pre class="brush: php; gutter: true; highlight: [18];">&lt;?php
-/**
- * Prevent specific users from uploading files
- *
- * @param array $caps
- * @param string $cap
- * @param int $user_id
- * @param array $args
- * @uses get_user_meta
- * @filter map_meta_cap
- * @return array
- */
-function wcto_limit_uploads( $caps, $cap, $user_id, $args ) {
-	if (
-		'upload_files' == $cap
-		&& (bool) get_user_meta( $user_id, 'disallow_uploads', true )
-	)
-		$caps[] = 'do_not_allow';
-
-	return $caps;
-}
-add_filter( 'map_meta_cap', 'wcto_limit_uploads', 10, 4 );
-?&gt;</pre>
-			</div>
-		</div>
-
-		<div class="step slide" data-x="30000" data-y="3600">
-			<h1>Magic of <code>do_not_allow</code></h1>
-
-			<p>When preventing something, you don't need to remove the capabilities that let a user perform an action.</p>
-
-			<p><code style="text-decoration: line-through;">unset( $caps['edit_posts'] );</code></p>
+			<h2>We have a query, we have a theme, let's put the two together!</h2>
 
 			<p>&nbsp;</p>
 
-			<p>Instead, add <code>do_not_allow</code> to the <code>$caps</code> array and WP ignores the other meta capabilities it determined.</p>
+			<p>When WordPress loaded the active theme back in <code>wp-settings.php</code>, it gathered intel about the theme, such as what templates it contains.</p>
+
+			<p>Now, it's time to choose the right template for the query.</p>
 		</div>
 
-		<div class="step slide" data-x="31500" data-y="3600">
-			<h1>Allow editing</h1>
+		<div class="step slide" data-x="25500" data-y="5400">
+			<h1>Template Hierarchy</h1>
 
-			<div class="code-container">
-				<pre class="brush: php; gutter: true; highlight: [20];">&lt;?php
-/**
- * Allow a contributor to edit a particular published post
- *
- * @param array $caps
- * @param string $cap
- * @param int $user_id
- * @param array $args
- * @uses get_post_meta
- * @filter map_meta_cap
- * @return array
- */
-function wcto_allow_contrib_edit_post( $caps, $cap, $user_id, $args ) {
-	if (
-		'edit_post' == $cap
-		&& isset( $args[0] )
-		&& (bool) get_post_meta( (int) $args[0], '_allow_contribs_to_edit', true )
-		&& get_post_field( 'post_author', (int) $args[0] ) == $user_id
-	)
-		$caps = array( 'edit_posts' );
-
-	return $caps;
-}
-add_filter( 'map_meta_cap', 'wcto_allow_contrib_edit_post', 10, 4 );
-?&gt;</pre>
-			</div>
+			<a href="http://codex.wordpress.org/Template_Hierarchy" target="_blank"><img src="http://codex.wordpress.org/images/1/18/Template_Hierarchy.png" height="600" /></a>
 		</div>
 
-		<div class="step slide" data-x="33000" data-y="3600">
-			<h1>Note about overriding</h1>
+		<div class="step slide" data-x="27000" data-y="5400">
+			<h1>But how?</h1>
 
-			<p>When overriding to grant a capability, you often must clear the <code>$caps</code> array of the capabilities you're overridding.</p>
+			<p>Using the known templates in the active theme, WordPress uses its conditional tags to determine which template to use.</p>
 
-			<p>In other words, there is no <code>allow</code> cap that has the opposite effect as <code>do_not_allow</code>.</p>
+			<p>&nbsp;</p>
+
+			<p>After determining the template to use, WordPress fires the <code>template_include</code> filter.</p>
+
+			<p>&nbsp;</p>
+
+			<p>Finally, WordPress loads the template file, and the theme takes over.</p>
 		</div>
 
-		<div class="step slide" data-x="33000" data-y="4500">
+		<div class="step slide" data-x="27000" data-y="6300">
 			<h1>Questions?</h1>
 
 			<h2>Slides are available at <a href="http://www.ethitter.com/blog/" target="_blank">http://www.ethitter.com/blog/</a>.</h2>
 
 			<h2>Check Twitter for a link as well: <a href="http://www.twitter.com/ethitter" target="_blank">@ethitter</a>.</h2>
-		<!-- end -->
+		</div>
+	<!-- end -->
 	</div>
 	<!--
 
